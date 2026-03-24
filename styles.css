@@ -83,5 +83,4 @@ input[type="text"]:focus, textarea:focus { border-color: #a78bfa !important; box
 .filter-pill { display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;border:1px solid transparent; }
 .filter-pill.active { background:#6d28d9;color:#fff;border-color:#6d28d9; }
 .filter-pill:hover { background:#ddd6fe; }
-
 body { box-sizing: border-box; }
