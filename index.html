@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full">
+  <div id="root" class="flex h-full"><!-- SIDEBAR -->
+   <aside class="sidebar flex flex-col">
+    <div class="p-5 border-b border-gray-100">
+      <div class="flex items-center gap-2 mb-1">
+        <div style="background:linear-gradient(135deg,#a78bfa,#7c3aed);border-radius:9px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;"><i data-lucide="zap" style="width:15px;height:15px;color:#fff;"></i>
+        </div><span id="sidebar-title" style="font-weight:700;font-size:16px;color:#1e1a14;">HabitFlow</span>
+      </div>
+      <p id="sidebar-greeting" style="font-size:11.5px;color:#a09892;margin-top:2px;">Good morning! ✨</p>
+    </div>
+    <div class="p-3 flex-1">
+     <p style="font-size:10px;font-weight:600;color:#c4bdb5;text-transform:uppercase;letter-spacing:.08em;padding:8px 14px 4px;">Navigation</p>
+     <div class="nav-item active" onclick="showSection('dashboard')"><i data-lucide="layout-dashboard"></i> Dashboard
+     </div>
+     <div class="nav-item" onclick="showSection('calendar')"><i data-lucide="calendar-days"></i> Calendar
+     </div>
+     <div class="nav-item" onclick="showSection('reports')"><i data-lucide="bar-chart-2"></i> Habit Reports
+     </div>
+     <div class="nav-item" onclick="showSection('notes')"><i data-lucide="sticky-note"></i> Notes
+     </div>
+     <div class="nav-item" onclick="showSection('projects')"><i data-lucide="layout-grid"></i> Projects
+     </div>
+     <p style="font-size:10px;font-weight:600;color:#c4bdb5;text-transform:uppercase;letter-spacing:.08em;padding:16px 14px 4px;">Quick Actions</p>
+     <div class="nav-item" onclick="openAddHabitModal()"><i data-lucide="plus-circle"></i> Today's Habit
+     </div>
+     <div class="nav-item" onclick="openManageModal()"><i data-lucide="settings-2"></i> Manage Habits
+     </div>
+     <div class="nav-item" onclick="logout()"><i data-lucide="log-out"></i> Logout
+     </div>
+     <p style="font-size:10px;font-weight:600;color:#c4bdb5;text-transform:uppercase;letter-spacing:.08em;padding:16px 14px 4px;">Help</p>
+     <div class="nav-item" onclick="showSection('tutorial')"><i data-lucide="book-open"></i> Tutorial
+     </div>
+    </div><!-- Today Mini Progress -->
+    <div style="margin:12px;background:#faf8ff;border:1px solid #ede9fe;border-radius:14px;padding:14px;">
+     <p style="font-size:11px;font-weight:600;color:#6d28d9;margin-bottom:8px;">Today's Progress</p>
+     <div class="progress-bar-bg mb-2">
+      <div class="progress-bar-fill" id="sidebar-prog" style="width:0%"></div>
+     </div>
+     <p id="sidebar-prog-txt" style="font-size:11px;color:#8b8479;">0 / 0 habits done</p>
+    </div>
+   </aside><!-- MAIN AREA -->
+   <main class="main-area p-6"><!-- DASHBOARD SECTION -->
+    <div id="section-dashboard" class="section-view active">
+     <div class="flex items-center justify-between mb-6">
+      <div>
+       <h1 style="font-size:22px;font-weight:700;color:#1e1a14;">Dashboard</h1>
+       <p id="dash-date" style="font-size:13px;color:#a09892;margin-top:2px;"></p>
+      </div><button onclick="openAddHabitModal()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;"> <i data-lucide="plus" style="width:15px;height:15px;"></i> Add Habit </button>
+     </div><!-- STAT CARDS -->
+     <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-3"><span style="font-size:12px;color:#a09892;font-weight:500;">Today</span>
+        <div style="background:#ede9fe;border-radius:8px;padding:5px;">
+         <i data-lucide="check-circle-2" style="width:14px;height:14px;color:#7c3aed;"></i>
+        </div>
+       </div>
+       <p id="stat-today" style="font-size:26px;font-weight:700;color:#1e1a14;">0%</p>
+       <p style="font-size:11px;color:#a09892;margin-top:2px;">completion rate</p>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-3"><span style="font-size:12px;color:#a09892;font-weight:500;">Streak</span>
+        <div style="background:#fef3c7;border-radius:8px;padding:5px;">
+         <i data-lucide="flame" style="width:14px;height:14px;color:#d97706;"></i>
+        </div>
+       </div>
+       <p id="stat-streak" style="font-size:26px;font-weight:700;color:#1e1a14;">0</p>
+       <p style="font-size:11px;color:#a09892;margin-top:2px;">day streak 🔥</p>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-3"><span style="font-size:12px;color:#a09892;font-weight:500;">This Week</span>
+        <div style="background:#d1fae5;border-radius:8px;padding:5px;">
+         <i data-lucide="trending-up" style="width:14px;height:14px;color:#059669;"></i>
+        </div>
+       </div>
+       <p id="stat-week" style="font-size:26px;font-weight:700;color:#1e1a14;">0%</p>
+       <p style="font-size:11px;color:#a09892;margin-top:2px;">weekly avg</p>
+      </div>
+      <div class="stat-card">
+       <div class="flex items-center justify-between mb-3"><span style="font-size:12px;color:#a09892;font-weight:500;">Monthly</span>
+        <div style="background:#fce7f3;border-radius:8px;padding:5px;">
+         <i data-lucide="calendar" style="width:14px;height:14px;color:#be185d;"></i>
+        </div>
+       </div>
+       <p id="stat-month" style="font-size:26px;font-weight:700;color:#1e1a14;">0%</p>
+       <p style="font-size:11px;color:#a09892;margin-top:2px;">monthly avg</p>
+      </div>
+     </div><!-- CHARTS ROW -->
+     <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="stat-card col-span-2">
+       <div class="flex items-center justify-between mb-4">
+        <p style="font-size:14px;font-weight:600;color:#1e1a14;">Daily Progress</p><span class="chip chip-purple">Last 14 days</span>
+       </div>
+       <canvas id="lineChart" height="90"></canvas>
+      </div>
+      <div class="stat-card flex flex-col items-center justify-center">
+       <p style="font-size:14px;font-weight:600;color:#1e1a14;margin-bottom:16px;">Monthly Rate</p>
+       <div style="position:relative;width:120px;height:120px;">
+        <svg width="120" height="120" class="circle-prog"><circle cx="60" cy="60" r="50" fill="none" stroke="#ede9fe" stroke-width="10" /> <circle id="monthly-ring" cx="60" cy="60" r="50" fill="none" stroke="#7c3aed" stroke-width="10" stroke-linecap="round" stroke-dasharray="314" stroke-dashoffset="314" style="transition:stroke-dashoffset 0.6s ease;" />
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span id="monthly-pct" style="font-size:22px;font-weight:700;color:#1e1a14;">0%</span> <span style="font-size:10px;color:#a09892;">overall</span>
+        </div>
+       </div>
+       <div style="margin-top:14px;display:flex;gap:14px;">
+        <div style="text-align:center;">
+         <p style="font-size:18px;font-weight:700;color:#1e1a14;" id="stat-done">0</p>
+         <p style="font-size:10px;color:#a09892;">done</p>
+        </div>
+        <div style="width:1px;background:#eceae4;"></div>
+        <div style="text-align:center;">
+         <p style="font-size:18px;font-weight:700;color:#1e1a14;" id="stat-missed">0</p>
+         <p style="font-size:10px;color:#a09892;">missed</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- WEEK CIRCLES + TODAY HABITS -->
+     <div class="grid grid-cols-3 gap-4">
+      <div class="stat-card col-span-2">
+       <div class="flex items-center justify-between mb-4">
+        <p style="font-size:14px;font-weight:600;color:#1e1a14;">Today's Habits</p><span id="today-chip" class="chip chip-purple">0 / 0</span>
+       </div>
+       <div id="today-habits-list">
+        <div style="text-align:center;padding:24px 0;color:#c4bdb5;font-size:13px;"><i data-lucide="inbox" style="width:28px;height:28px;margin:0 auto 8px;display:block;"></i> No habits yet. Add one!
+        </div>
+       </div>
+      </div>
+      <div class="stat-card">
+       <p style="font-size:14px;font-weight:600;color:#1e1a14;margin-bottom:14px;">This Week</p>
+       <div id="week-circles" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+     </div>
+    </div><!-- CALENDAR SECTION -->
+    <div id="section-calendar" class="section-view">
+     <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3"><button onclick="prevMonth()" style="background:#fff;border:1px solid #eceae4;border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;"><i data-lucide="chevron-left" style="width:16px;height:16px;color:#5a5750;"></i></button>
+       <h2 id="cal-title" style="font-size:18px;font-weight:700;color:#1e1a14;min-width:180px;text-align:center;"></h2><button onclick="nextMonth()" style="background:#fff;border:1px solid #eceae4;border-radius:8px;padding:6px 10px;cursor:pointer;display:flex;align-items:center;"><i data-lucide="chevron-right" style="width:16px;height:16px;color:#5a5750;"></i></button>
+      </div><button onclick="openAddHabitModal()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;"> <i data-lucide="plus" style="width:14px;height:14px;"></i> Add Habit </button>
+     </div><!-- Day headers -->
+     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Sun
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Mon
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Tue
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Wed
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Thu
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Fri
+      </div>
+      <div style="text-align:center;font-size:11px;font-weight:600;color:#a09892;padding:4px;">
+       Sat
+      </div>
+     </div>
+     <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;"></div>
+    </div><!-- REPORTS SECTION -->
+    <div id="section-reports" class="section-view">
+     <div class="flex items-center justify-between mb-6">
+      <h2 style="font-size:20px;font-weight:700;color:#1e1a14;">Habit Reports</h2>
+      <div style="display:flex;gap:4px;background:#f0ede8;padding:3px;border-radius:10px;"><button class="tab-btn active" id="tab-weekly" onclick="switchReportTab('weekly')">Weekly</button> <button class="tab-btn" id="tab-monthly" onclick="switchReportTab('monthly')">Monthly</button>
+      </div>
+     </div>
+     <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="stat-card" id="rep-stat1"></div>
+      <div class="stat-card" id="rep-stat2"></div>
+      <div class="stat-card" id="rep-stat3"></div>
+     </div>
+     <div class="stat-card mb-4">
+      <p style="font-size:14px;font-weight:600;color:#1e1a14;margin-bottom:16px;">Completion Trend</p>
+      <canvas id="reportChart" height="70"></canvas>
+     </div>
+     <div class="stat-card">
+      <p style="font-size:14px;font-weight:600;color:#1e1a14;margin-bottom:14px;">Habit Breakdown</p>
+      <div id="habit-breakdown"></div>
+     </div>
+    </div><!-- NOTES SECTION -->
+    <div id="section-notes" class="section-view">
+     <div class="flex items-center justify-between mb-6">
+      <h2 style="font-size:20px;font-weight:700;color:#1e1a14;">Notes &amp; Reminders</h2><button onclick="addNote()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;"> <i data-lucide="plus" style="width:14px;height:14px;"></i> New Note </button>
+     </div>
+     <div id="notes-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+    </div><!-- PROJECTS SECTION -->
+    <div id="section-projects" class="section-view">
+     <div class="flex items-center justify-between mb-6">
+      <div>
+       <h2 style="font-size:20px;font-weight:700;color:#1e1a14;">Project Timeline</h2>
+       <p style="font-size:12px;color:#a09892;margin-top:2px;">Drag &amp; resize to update project dates</p>
+      </div><button onclick="openAddProjectModal()" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;"><i data-lucide="plus" style="width:15px;height:15px;"></i> New Project </button>
+     </div><!-- FILTERS -->
+     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:11px;font-weight:600;color:#a09892;">Filter:</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="filter-pills"></div>
+     </div><!-- TIMELINE -->
+     <div style="background:#fff;border-radius:16px;border:1px solid #eceae4;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+      <div style="overflow-x:auto;overflow-y:hidden;" id="timeline-scroll">
+       <div style="position:relative;min-height:480px;background:linear-gradient(90deg,#fafaf9 0%,#f5f3ef 50%,#fafaf9 100%);" id="timeline-container"></div>
+      </div>
+     </div>
+    </div><!-- TUTORIAL SECTION -->
+    <div id="section-tutorial" class="section-view">
+     <h2 style="font-size:20px;font-weight:700;color:#1e1a14;margin-bottom:20px;">Getting Started</h2>
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="stat-card">
+       <div style="background:#ede9fe;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><span style="font-size:20px;">1️⃣</span>
+       </div>
+       <p style="font-weight:600;color:#1e1a14;margin-bottom:6px;">Add Your Habits</p>
+       <p style="font-size:13px;color:#a09892;line-height:1.6;">Click "+ Add Habit" or "Today's Habit" in the sidebar to create your first habit. Give it a name and emoji!</p>
+      </div>
+      <div class="stat-card">
+       <div style="background:#d1fae5;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><span style="font-size:20px;">2️⃣</span>
+       </div>
+       <p style="font-weight:600;color:#1e1a14;margin-bottom:6px;">Track Daily</p>
+       <p style="font-size:13px;color:#a09892;line-height:1.6;">Check off habits each day from the Dashboard or Calendar view. Watch your progress bar fill up!</p>
+      </div>
+      <div class="stat-card">
+       <div style="background:#fef3c7;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><span style="font-size:20px;">3️⃣</span>
+       </div>
+       <p style="font-weight:600;color:#1e1a14;margin-bottom:6px;">View Reports</p>
+       <p style="font-size:13px;color:#a09892;line-height:1.6;">Check the Reports section to see weekly &amp; monthly trends. Identify your strongest and weakest habits.</p>
+      </div>
+      <div class="stat-card">
+       <div style="background:#fce7f3;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;"><span style="font-size:20px;">4️⃣</span>
+       </div>
+       <p style="font-weight:600;color:#1e1a14;margin-bottom:6px;">Take Notes</p>
+       <p style="font-size:13px;color:#a09892;line-height:1.6;">Use the Notes section to log daily reflections, motivations, or reminders to stay on track.</p>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- ADD HABIT MODAL -->
+  <div id="add-modal" class="modal-overlay" style="display:none;">
+   <div class="modal-box">
+    <div class="flex items-center justify-between mb-5">
+     <h3 style="font-size:17px;font-weight:700;color:#1e1a14;">Add New Habit</h3><button onclick="closeModal('add-modal')" style="background:#f0ede8;border:none;border-radius:8px;padding:6px;cursor:pointer;"><i data-lucide="x" style="width:15px;height:15px;color:#5a5750;"></i></button>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Habit Name</label> <input id="habit-name-input" type="text" placeholder="e.g. Morning Run 🏃" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:14px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Emoji / Icon</label>
+     <div id="emoji-picker" style="display:flex;gap:8px;flex-wrap:wrap;"><span class="emoji-opt" data-val="🏃" onclick="pickEmoji(this)">🏃</span> <span class="emoji-opt" data-val="💧" onclick="pickEmoji(this)">💧</span> <span class="emoji-opt" data-val="📚" onclick="pickEmoji(this)">📚</span> <span class="emoji-opt" data-val="🧘" onclick="pickEmoji(this)">🧘</span> <span class="emoji-opt" data-val="🥗" onclick="pickEmoji(this)">🥗</span> <span class="emoji-opt" data-val="💪" onclick="pickEmoji(this)">💪</span> <span class="emoji-opt" data-val="😴" onclick="pickEmoji(this)">😴</span> <span class="emoji-opt" data-val="✍️" onclick="pickEmoji(this)">✍️</span> <span class="emoji-opt" data-val="🎯" onclick="pickEmoji(this)">🎯</span> <span class="emoji-opt" data-val="🌿" onclick="pickEmoji(this)">🌿</span>
+     </div>
+    </div>
+    <div style="margin-bottom:20px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Color Tag</label>
+     <div id="color-picker" style="display:flex;gap:8px;">
+      <div class="color-opt" data-val="#a78bfa" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#a78bfa;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-opt" data-val="#34d399" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#34d399;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-opt" data-val="#fbbf24" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#fbbf24;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-opt" data-val="#f87171" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#f87171;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-opt" data-val="#60a5fa" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#60a5fa;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="color-opt" data-val="#f472b6" onclick="pickColor(this)" style="width:24px;height:24px;border-radius:50%;background:#f472b6;cursor:pointer;border:2px solid transparent;"></div>
+     </div>
+    </div><button onclick="saveHabit()" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Add Habit</button>
+   </div>
+  </div><!-- MANAGE HABITS MODAL -->
+  <div id="manage-modal" class="modal-overlay" style="display:none;">
+   <div class="modal-box" style="width:480px;">
+    <div class="flex items-center justify-between mb-5">
+     <h3 style="font-size:17px;font-weight:700;color:#1e1a14;">Manage Habits</h3><button onclick="closeModal('manage-modal')" style="background:#f0ede8;border:none;border-radius:8px;padding:6px;cursor:pointer;"><i data-lucide="x" style="width:15px;height:15px;color:#5a5750;"></i></button>
+    </div>
+    <div id="manage-list"></div>
+    <p id="manage-empty" style="text-align:center;color:#c4bdb5;font-size:13px;padding:20px 0;display:none;">No habits created yet.</p>
+   </div>
+  </div><!-- ADD PROJECT MODAL -->
+  <div id="add-project-modal" class="modal-overlay" style="display:none;">
+   <div class="modal-box" style="width:460px;">
+    <div class="flex items-center justify-between mb-5">
+     <h3 style="font-size:17px;font-weight:700;color:#1e1a14;">New Project</h3><button onclick="closeModal('add-project-modal')" style="background:#f0ede8;border:none;border-radius:8px;padding:6px;cursor:pointer;"><i data-lucide="x" style="width:15px;height:15px;color:#5a5750;"></i></button>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Project Name</label> <input id="project-name-input" type="text" placeholder="e.g. Mobile Redesign" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:14px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+     <div><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Start Date</label> <input id="project-start-input" type="date" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;">
+     </div>
+     <div><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">End Date</label> <input id="project-end-input" type="date" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;">
+     </div>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Status</label> <select id="project-status-input" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;"> <option>Pending</option> <option>Building</option> <option>Completed</option> </select>
+    </div>
+    <div style="margin-bottom:14px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:6px;">Tags (comma separated)</label> <input id="project-tags-input" type="text" placeholder="e.g. Python, SQL, Internship" style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:16px;"><label style="font-size:12px;font-weight:600;color:#5a5750;display:block;margin-bottom:8px;">Color</label>
+     <div id="proj-color-picker" style="display:flex;gap:8px;">
+      <div class="proj-color-opt selected" data-val="#c4b5fd" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#c4b5fd;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="proj-color-opt" data-val="#34d399" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#34d399;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="proj-color-opt" data-val="#fbbf24" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#fbbf24;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="proj-color-opt" data-val="#f87171" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#f87171;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="proj-color-opt" data-val="#60a5fa" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#60a5fa;cursor:pointer;border:2px solid transparent;"></div>
+      <div class="proj-color-opt" data-val="#f472b6" onclick="pickProjectColor(this)" style="width:28px;height:28px;border-radius:8px;background:#f472b6;cursor:pointer;border:2px solid transparent;"></div>
+     </div>
+    </div><button onclick="saveProject()" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Create Project</button>
+   </div>
+  </div><!-- DAY DETAIL MODAL -->
+  <div id="day-modal" class="modal-overlay" style="display:none;">
+   <div class="modal-box" style="width:460px;">
+    <div class="flex items-center justify-between mb-2">
+     <h3 id="day-modal-title" style="font-size:17px;font-weight:700;color:#1e1a14;"></h3><button onclick="closeModal('day-modal')" style="background:#f0ede8;border:none;border-radius:8px;padding:6px;cursor:pointer;"><i data-lucide="x" style="width:15px;height:15px;color:#5a5750;"></i></button>
+    </div>
+    <div id="day-modal-prog-wrap" style="margin-bottom:14px;">
+     <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="day-modal-bar" style="width:0%"></div>
+     </div>
+     <p id="day-modal-pct" style="font-size:11px;color:#a09892;margin-top:4px;"></p>
+    </div>
+    <div id="day-modal-list"></div>
+   </div>
+  </div><!-- NOTE INPUT MODAL -->
+  <div id="note-modal" class="modal-overlay" style="display:none;">
+   <div class="modal-box">
+    <div class="flex items-center justify-between mb-4">
+     <h3 style="font-size:17px;font-weight:700;color:#1e1a14;">New Note</h3><button onclick="closeModal('note-modal')" style="background:#f0ede8;border:none;border-radius:8px;padding:6px;cursor:pointer;"><i data-lucide="x" style="width:15px;height:15px;color:#5a5750;"></i></button>
+    </div><input id="note-title-input" type="text" placeholder="Note title..." style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:9px 14px;font-size:14px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;margin-bottom:10px;"> <textarea id="note-body-input" placeholder="Write your note..." style="width:100%;border:1.5px solid #eceae4;border-radius:10px;padding:9px 14px;font-size:13.5px;color:#1e1a14;background:#fafaf9;box-sizing:border-box;height:100px;resize:none;"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;margin-bottom:16px;" id="note-color-picker">
+     <div class="note-color-opt active" data-val="#fffbf0" onclick="pickNoteColor(this)" style="width:22px;height:22px;border-radius:50%;background:#fffbf0;cursor:pointer;border:2px solid #fde68a;"></div>
+     <div class="note-color-opt" data-val="#f0fdf4" onclick="pickNoteColor(this)" style="width:22px;height:22px;border-radius:50%;background:#f0fdf4;cursor:pointer;border:2px solid transparent;"></div>
+     <div class="note-color-opt" data-val="#faf8ff" onclick="pickNoteColor(this)" style="width:22px;height:22px;border-radius:50%;background:#faf8ff;cursor:pointer;border:2px solid transparent;"></div>
+     <div class="note-color-opt" data-val="#fff1f2" onclick="pickNoteColor(this)" style="width:22px;height:22px;border-radius:50%;background:#fff1f2;cursor:pointer;border:2px solid transparent;"></div>
+    </div><button onclick="saveNote()" style="width:100%;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">Save Note</button>
+   </div>
+  </div>
+
+
+  <script src="script.js"></script>
+
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e0fffcc113347d5',t:'MTc3NDI5NTc4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
