@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const publicPath = path.resolve(__dirname, "..");
+const publicPath = path.resolve(__dirname, ".");
 
 // App root info
 app.get("/", (req, res) => {
