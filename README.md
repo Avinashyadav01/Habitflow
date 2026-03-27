@@ -48,8 +48,8 @@ This project was built with the help of AI tools for guidance, but the implement
 
 ## 👨‍💻 Author
 
-Avinash
+Avinash Yadav
 
 ---
 
-⭐ Star this repo if you like it!
+⭐ Star this repo if you like it!!!
